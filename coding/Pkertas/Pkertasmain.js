@@ -1,6 +1,6 @@
-import { loadAudio } from "/FYPECO/libs/loader.js";
-import { DRACOLoader } from "/FYPECO/libs/three.js-r132/examples/jsm/loaders/DRACOLoader.js";
-import { GLTFLoader } from "/FYPECO/libs/three.js-r132/examples/jsm/loaders/GLTFLoader.js";
+import { loadAudio } from "./libs/loader.js";
+import { DRACOLoader } from "./libs/three.js-r132/examples/jsm/loaders/DRACOLoader.js";
+import { GLTFLoader } from "./libs/three.js-r132/examples/jsm/loaders/GLTFLoader.js";
 
 const THREE = window.MINDAR.IMAGE.THREE;
 
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ====================== */
       const mindarThree = new window.MINDAR.IMAGE.MindARThree({
         container: document.body,
-        imageTargetSrc: "/FYPECO/assets/targets/proseskitar/Pkertas.mind"
+        imageTargetSrc: "./assets/targets/proseskitar/Pkertas.mind"
       });
 
       const { renderer, scene, camera } = mindarThree;
