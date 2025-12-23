@@ -23,8 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
          BUTTON BACK + INFO
       ====================== */
       const backBtn = document.createElement("a");
-      backBtn.innerHTML = `<img src="/FYPECO/image-menu/back.png" style="width:100%; height:auto; object-fit:contain;">`;
-      backBtn.onclick = () => window.location.href = "/FYPECO/proseskitar.html";
+      backBtn.innerHTML = `<img src="./image-menu/back.png" style="width:100%; height:auto; object-fit:contain;">`;
+      backBtn.onclick = () => window.location.href = "./proseskitar.html";
       Object.assign(backBtn.style, {
         position: "fixed",
         top: "clamp(10px, 3vw, 20px)",
@@ -158,11 +158,11 @@ document.addEventListener("DOMContentLoaded", () => {
       camera.add(listener);
 
       const steps = [
-        { glb: "/FYPECO/assets/models/Mproseskitar/PKertas1.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas1.mp3", scale: 0.1, info: "Semua kertas lama seperti surat khabar, buku dan kotak dikumpulkan. Kemudian, dipisahkan mengikut jenisnya.Kertas lama dihancurkan jadi cebisan kecil.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkertas2.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas2.mp3", scale: 0.1, info: "Cebisan tadi dimasukkan dalam larutan air khas dan berubah menjadi pulpa iaitu bubur kertas lembut yang boleh dibentuk semula.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkertas3.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas3.mp3", scale: 0.1, info: "Sebelum menjadi kertas baru, pulpa perlu dibersihkan dahulu. Ia ditapis untuk membuang plastik kecil, dakwat dan kotoran lain.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkertas4.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas4.mp3", scale: 0.08, info: "Pulpa diratakan,ditekan dan dikeringkan.Bubur kertas perlahan-lahan keras menjadi helaian.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkertas5.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas5.mp3", scale: 0.11, info: "Kertas lama kini menjadi barang baru seperti buku dan kotak tisu.", loaded: false }
+        { glb: "./assets/models/Mproseskitar/PKertas1.glb", audio: "./assets/suara/Sproseskitar/Spkertas1.mp3", scale: 0.1, info: "Semua kertas lama seperti surat khabar, buku dan kotak dikumpulkan. Kemudian, dipisahkan mengikut jenisnya.Kertas lama dihancurkan jadi cebisan kecil.", loaded: false },
+        { glb: "./assets/models/Mproseskitar/Pkertas2.glb", audio: "./assets/suara/Sproseskitar/Spkertas2.mp3", scale: 0.1, info: "Cebisan tadi dimasukkan dalam larutan air khas dan berubah menjadi pulpa iaitu bubur kertas lembut yang boleh dibentuk semula.", loaded: false },
+        { glb: "./assets/models/Mproseskitar/Pkertas3.glb", audio: "./assets/suara/Sproseskitar/Spkertas3.mp3", scale: 0.1, info: "Sebelum menjadi kertas baru, pulpa perlu dibersihkan dahulu. Ia ditapis untuk membuang plastik kecil, dakwat dan kotoran lain.", loaded: false },
+        { glb: "./assets/models/Mproseskitar/Pkertas4.glb", audio: "./assets/suara/Sproseskitar/Spkertas4.mp3", scale: 0.08, info: "Pulpa diratakan,ditekan dan dikeringkan.Bubur kertas perlahan-lahan keras menjadi helaian.", loaded: false },
+        { glb: "./assets/models/Mproseskitar/Pkertas5.glb", audio: "./assets/suara/Sproseskitar/Spkertas5.mp3", scale: 0.11, info: "Kertas lama kini menjadi barang baru seperti buku dan kotak tisu.", loaded: false }
       ];
 
       let currentStep = 0;
