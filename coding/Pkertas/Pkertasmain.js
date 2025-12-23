@@ -1,47 +1,42 @@
-import { loadAudio } from "./libs/loader.js";
-import { DRACOLoader } from "./libs/three.js-r132/examples/jsm/loaders/DRACOLoader.js";
-import { GLTFLoader } from "./libs/three.js-r132/examples/jsm/loaders/GLTFLoader.js";
-
-const THREE = window.MINDAR.IMAGE.THREE;
+import { loadAudio } from "./libs/loader.js"; // pastikan loader.js ada di repo
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js";
+import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/loaders/GLTFLoader.js";
+import { DRACOLoader } from "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/loaders/DRACOLoader.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   const start = async () => {
     try {
-
-      /* =====================
-         MindAR Init
-      ====================== */
+      // ========== MindAR Init ==========
       const mindarThree = new window.MINDAR.IMAGE.MindARThree({
         container: document.body,
-        imageTargetSrc: "./assets/targets/proseskitar/Pkertas.mind"
+        imageTargetSrc: "./assets/targets/proseskitar/Pkertas.mind" // relative path
       });
 
       const { renderer, scene, camera } = mindarThree;
       scene.add(new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1));
 
-      /* =====================
-         BUTTON BACK + INFO
-      ====================== */
+      // ========== BUTTON BACK ==========
       const backBtn = document.createElement("a");
       backBtn.innerHTML = `<img src="./image-menu/back.png" style="width:100%; height:auto; object-fit:contain;">`;
       backBtn.onclick = () => window.location.href = "./proseskitar.html";
       Object.assign(backBtn.style, {
         position: "fixed",
-        top: "clamp(10px, 3vw, 20px)",
-        left: "clamp(10px, 3vw, 20px)",
-        width: "clamp(70px, 12vw, 110px)",
+        top: "clamp(10px,3vw,20px)",
+        left: "clamp(10px,3vw,20px)",
+        width: "clamp(70px,12vw,110px)",
         cursor: "pointer",
         zIndex: "9999"
       });
       document.body.appendChild(backBtn);
 
+      // ========== INFO BUTTON ==========
       const infoBtn = document.createElement("div");
       infoBtn.innerHTML = "💡";
       Object.assign(infoBtn.style, {
         position: "fixed",
-        top: "clamp(10px, 3vw, 20px)",
-        right: "clamp(10px, 3vw, 20px)",
-        fontSize: "clamp(32px, 8vw, 50px)",
+        top: "clamp(10px,3vw,20px)",
+        right: "clamp(10px,3vw,20px)",
+        fontSize: "clamp(32px,8vw,50px)",
         cursor: "pointer",
         zIndex: "9999",
         userSelect: "none"
@@ -51,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const infoText = document.createElement("div");
       Object.assign(infoText.style, {
         position: "fixed",
-        bottom: "100px", // dinaikkan supaya tak tersembunyi progress bar
+        bottom: "100px",
         left: "50%",
         transform: "translateX(-50%) scale(0.9)",
         padding: "14px 20px",
@@ -59,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
         background: "#8cd878",
         border: "3px solid #5faa48",
         color: "#1e4d14",
-        fontSize: "clamp(16px, 4vw, 22px)",
+        fontSize: "clamp(16px,4vw,22px)",
         fontWeight: "bold",
         fontFamily: "'Comic Sans MS','Poppins'",
         borderRadius: "25px",
@@ -75,22 +70,20 @@ document.addEventListener("DOMContentLoaded", () => {
       let infoShown = false;
       infoBtn.onclick = () => {
         infoShown = !infoShown;
-        if (infoShown) {
+        if(infoShown){
           infoText.style.display = "block";
-          setTimeout(() => {
+          setTimeout(()=>{
             infoText.style.opacity = "1";
             infoText.style.transform = "translateX(-50%) scale(1)";
-          }, 10);
+          },10);
         } else {
           infoText.style.opacity = "0";
           infoText.style.transform = "translateX(-50%) scale(0.9)";
-          setTimeout(() => infoText.style.display = "none", 200);
+          setTimeout(()=> infoText.style.display = "none",200);
         }
       };
 
-      /* =====================
-         INSTRUCTION POPUP
-      ====================== */
+      // ========== Instruction Overlay ==========
       const instructionOverlay = document.createElement("div");
       Object.assign(instructionOverlay.style, {
         position: "fixed",
@@ -106,10 +99,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const instructionBox = document.createElement("div");
       Object.assign(instructionBox.style, {
         background: "#ffffff",
-        padding: "clamp(18px, 4vw, 30px)",
+        padding: "clamp(18px,4vw,30px)",
         borderRadius: "25px",
         maxWidth: "92%",
-        width: "clamp(260px, 80vw, 420px)",
+        width: "clamp(260px,80vw,420px)",
         textAlign: "center",
         boxShadow: "0 15px 35px rgba(0,0,0,.3)"
       });
@@ -136,21 +129,16 @@ document.addEventListener("DOMContentLoaded", () => {
           FAHAM & MULA
         </button>
       `;
-
       instructionOverlay.appendChild(instructionBox);
       document.body.appendChild(instructionOverlay);
 
-      let instructionDismissed = false;
       document.getElementById("startARBtn").onclick = () => {
         instructionOverlay.style.display = "none";
-        instructionDismissed = true;
       };
 
-      /* =====================
-         Loader
-      ====================== */
+      // ========== Loader ==========
       const dLoader = new DRACOLoader();
-      dLoader.setDecoderPath("/FYPECO/libs/draco/");
+      dLoader.setDecoderPath("./libs/draco/"); // pastikan draco ada di repo
       const gltfLoader = new GLTFLoader();
       gltfLoader.setDRACOLoader(dLoader);
 
@@ -158,11 +146,11 @@ document.addEventListener("DOMContentLoaded", () => {
       camera.add(listener);
 
       const steps = [
-        { glb: "./assets/models/Mproseskitar/PKertas1.glb", audio: "./assets/suara/Sproseskitar/Spkertas1.mp3", scale: 0.1, info: "Semua kertas lama seperti surat khabar, buku dan kotak dikumpulkan. Kemudian, dipisahkan mengikut jenisnya.Kertas lama dihancurkan jadi cebisan kecil.", loaded: false },
-        { glb: "./assets/models/Mproseskitar/Pkertas2.glb", audio: "./assets/suara/Sproseskitar/Spkertas2.mp3", scale: 0.1, info: "Cebisan tadi dimasukkan dalam larutan air khas dan berubah menjadi pulpa iaitu bubur kertas lembut yang boleh dibentuk semula.", loaded: false },
-        { glb: "./assets/models/Mproseskitar/Pkertas3.glb", audio: "./assets/suara/Sproseskitar/Spkertas3.mp3", scale: 0.1, info: "Sebelum menjadi kertas baru, pulpa perlu dibersihkan dahulu. Ia ditapis untuk membuang plastik kecil, dakwat dan kotoran lain.", loaded: false },
-        { glb: "./assets/models/Mproseskitar/Pkertas4.glb", audio: "./assets/suara/Sproseskitar/Spkertas4.mp3", scale: 0.08, info: "Pulpa diratakan,ditekan dan dikeringkan.Bubur kertas perlahan-lahan keras menjadi helaian.", loaded: false },
-        { glb: "./assets/models/Mproseskitar/Pkertas5.glb", audio: "./assets/suara/Sproseskitar/Spkertas5.mp3", scale: 0.11, info: "Kertas lama kini menjadi barang baru seperti buku dan kotak tisu.", loaded: false }
+        { glb:"./assets/models/Mproseskitar/PKertas1.glb", audio:"./assets/suara/Sproseskitar/Spkertas1.mp3", scale:0.1, info:"Semua kertas lama seperti surat khabar, buku dan kotak dikumpulkan. Kemudian, dipisahkan mengikut jenisnya.Kertas lama dihancurkan jadi cebisan kecil.", loaded:false },
+        { glb:"./assets/models/Mproseskitar/Pkertas2.glb", audio:"./assets/suara/Sproseskitar/Spkertas2.mp3", scale:0.1, info:"Cebisan tadi dimasukkan dalam larutan air khas dan berubah menjadi pulpa iaitu bubur kertas lembut yang boleh dibentuk semula.", loaded:false },
+        { glb:"./assets/models/Mproseskitar/Pkertas3.glb", audio:"./assets/suara/Sproseskitar/Spkertas3.mp3", scale:0.1, info:"Sebelum menjadi kertas baru, pulpa perlu dibersihkan dahulu. Ia ditapis untuk membuang plastik kecil, dakwat dan kotoran lain.", loaded:false },
+        { glb:"./assets/models/Mproseskitar/Pkertas4.glb", audio:"./assets/suara/Sproseskitar/Spkertas4.mp3", scale:0.08, info:"Pulpa diratakan,ditekan dan dikeringkan.Bubur kertas perlahan-lahan keras menjadi helaian.", loaded:false },
+        { glb:"./assets/models/Mproseskitar/Pkertas5.glb", audio:"./assets/suara/Sproseskitar/Spkertas5.mp3", scale:0.11, info:"Kertas lama kini menjadi barang baru seperti buku dan kotak tisu.", loaded:false }
       ];
 
       let currentStep = 0;
@@ -170,85 +158,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const mixers = [];
       const anchor = mindarThree.addAnchor(0);
 
-      /* =====================
-         Unlock Audio
-      ====================== */
+      // ========== Unlock Audio ==========
       const unlockAudio = () => {
         const ctx = THREE.AudioContext.getContext();
-        if (ctx.state === "suspended") ctx.resume();
+        if(ctx.state === "suspended") ctx.resume();
       };
-      document.addEventListener("touchstart", unlockAudio, { once: true });
-      document.addEventListener("click", unlockAudio, { once: true });
+      document.addEventListener("touchstart", unlockAudio, { once:true });
+      document.addEventListener("click", unlockAudio, { once:true });
 
-      /* =====================
-         PROGRESS TEXT + BAR
-      ====================== */
-      const progressText = document.createElement("div");
-      Object.assign(progressText.style, {
-        position: "fixed",
-        top: "14px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        fontSize: "clamp(18px,4vw,24px)",
-        fontWeight: "bold",
-        fontFamily: "'Comic Sans MS','Comic Neue','Arial'",
-        color: "black",
-        background: "white",
-        padding: "6px 16px",
-        borderRadius: "12px",
-        border: "2px solid #f0f0f0",
-        zIndex: "9999",
-        pointerEvents: "none",
-        textAlign: "center",
-        boxShadow: "0 4px 8px rgba(0,0,0,0.2)"
-      });
-      document.body.appendChild(progressText);
-
-      const progressBarContainer = document.createElement("div");
-      Object.assign(progressBarContainer.style, {
-        position: "fixed",
-        bottom: "12px",
-        left: "50%",
-        transform: "translateX(-50%)",
-        width: "80%",
-        height: "14px",
-        background: "rgba(200,200,200,0.4)",
-        borderRadius: "12px",
-        overflow: "hidden",
-        zIndex: "9999"
-      });
-      document.body.appendChild(progressBarContainer);
-
-      const progressBarFill = document.createElement("div");
-      Object.assign(progressBarFill.style, {
-        width: "0%",
-        height: "100%",
-        borderRadius: "12px",
-        background: "linear-gradient(90deg, #ff9a9e, #fad0c4, #a1c4fd, #c2e9fb)",
-        transition: "width 0.3s ease"
-      });
-      progressBarContainer.appendChild(progressBarFill);
-
-      const updateProgress = (index) => {
-        progressText.innerText = `Proses ${index + 1} / ${steps.length}`;
-        progressBarFill.style.width = `${((index + 1) / steps.length) * 100}%`;
-      };
-
-      /* =====================
-         Load Step
-      ====================== */
-      async function loadStep(index) {
+      // ========== Load Step ==========
+      async function loadStep(index){
         const step = steps[index];
-        if (step.loaded) return;
+        if(step.loaded) return;
 
-        const gltf = await new Promise((res, rej) => gltfLoader.load(step.glb, res, undefined, rej));
+        const gltf = await new Promise((res,rej)=> gltfLoader.load(step.glb,res,undefined,rej));
         gltf.scene.scale.setScalar(step.scale);
-        gltf.scene.visible = false;
+        gltf.scene.visible=false;
         anchor.group.add(gltf.scene);
-        step.model = gltf.scene;
+        step.model=gltf.scene;
 
         const mixer = new THREE.AnimationMixer(gltf.scene);
-        if (gltf.animations.length) mixer.clipAction(gltf.animations[0]).play();
+        if(gltf.animations.length) mixer.clipAction(gltf.animations[0]).play();
         mixers.push(mixer);
 
         const clip = await loadAudio(step.audio);
@@ -262,163 +192,122 @@ document.addEventListener("DOMContentLoaded", () => {
         step.loaded = true;
       }
 
-      /* =====================
-         Go To Step
-      ====================== */
-      async function goToStep(index) {
+      async function goToStep(index){
         await loadStep(index);
 
-        steps.forEach((s, i) => {
-          if (s.model) s.model.visible = (i === index);
-          if (s.audioObj && s.audioObj.isPlaying) s.audioObj.stop();
+        steps.forEach((s,i)=>{
+          if(s.model) s.model.visible=(i===index);
+          if(s.audioObj && s.audioObj.isPlaying) s.audioObj.stop();
         });
 
-        currentStep = index;
-        infoText.innerText = steps[index].info;
-
-        updateProgress(index);
+        currentStep=index;
+        infoText.innerText=steps[index].info;
       }
 
-      anchor.onTargetFound = async () => {
+      anchor.onTargetFound = async ()=>{
         targetFound = true;
-        instructionOverlay.style.display = "none";
         await goToStep(currentStep);
       };
 
-      anchor.onTargetLost = () => {
+      anchor.onTargetLost = ()=>{
         targetFound = false;
-        steps.forEach(s => s.audioObj?.stop());
+        steps.forEach(s=>s.audioObj?.stop());
       };
 
-      /* =====================
-         Tap Logic
-      ====================== */
+      // ========== Tap Logic ==========
       const raycaster = new THREE.Raycaster();
       const mouse = new THREE.Vector2();
-      let lastTapTime = 0;
-      const DOUBLE_TAP_DELAY = 300;
-      let touchHandled = false;
+      let lastTapTime=0;
+      const DOUBLE_TAP_DELAY=300;
+      let touchHandled=false;
 
-      function tryTap(x, y) {
-        if (!targetFound) return;
+      function tryTap(x,y){
+        if(!targetFound) return;
+        mouse.x=(x/window.innerWidth)*2-1;
+        mouse.y=-(y/window.innerHeight)*2+1;
+        raycaster.setFromCamera(mouse,camera);
 
-        mouse.x = (x / window.innerWidth) * 2 - 1;
-        mouse.y = -(y / window.innerHeight) * 2 + 1;
-        raycaster.setFromCamera(mouse, camera);
-
-        const hit = raycaster.intersectObject(steps[currentStep].model, true);
-        if (!hit.length) return;
+        const hit = raycaster.intersectObject(steps[currentStep].model,true);
+        if(!hit.length) return;
 
         const now = Date.now();
         const step = steps[currentStep];
 
-        if (now - lastTapTime < DOUBLE_TAP_DELAY) {
-          goToStep((currentStep + 1) % steps.length);
-          lastTapTime = 0;
+        if(now-lastTapTime < DOUBLE_TAP_DELAY){
+          goToStep((currentStep+1)%steps.length);
+          lastTapTime=0;
           return;
         }
 
-        if (step.audioObj) {
-          if (step.audioObj.isPlaying) step.audioObj.stop();
+        if(step.audioObj){
+          if(step.audioObj.isPlaying) step.audioObj.stop();
           step.audioObj.play();
         }
 
-        lastTapTime = now;
+        lastTapTime=now;
       }
 
-      document.addEventListener("touchend", e => {
-        touchHandled = true;
-        tryTap(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+      document.addEventListener("touchend",e=>{
+        touchHandled=true;
+        tryTap(e.changedTouches[0].clientX,e.changedTouches[0].clientY);
       });
 
-      document.addEventListener("click", e => {
-        if (touchHandled) {
-          touchHandled = false;
+      document.addEventListener("click",e=>{
+        if(touchHandled){
+          touchHandled=false;
           return;
         }
-        tryTap(e.clientX, e.clientY);
+        tryTap(e.clientX,e.clientY);
       });
 
-      /* =====================
-         Drag / Rotate Current Model
-      ====================== */
-      let dragging = false;
-      let moved = false;
-      let sx = 0, sy = 0;
+      // ========== Drag / Rotate ==========
+      let dragging=false,moved=false,sx=0,sy=0;
 
-      document.addEventListener("touchstart", e => {
-        if (!targetFound) return;
-        dragging = true;
-        moved = false;
-        sx = e.touches[0].clientX;
-        sy = e.touches[0].clientY;
+      document.addEventListener("touchstart",e=>{
+        if(!targetFound) return;
+        dragging=true; moved=false; sx=e.touches[0].clientX; sy=e.touches[0].clientY;
       });
-
-      document.addEventListener("touchmove", e => {
-        if (!dragging || !targetFound) return;
-
+      document.addEventListener("touchmove",e=>{
+        if(!dragging || !targetFound) return;
         const dx = e.touches[0].clientX - sx;
         const dy = e.touches[0].clientY - sy;
-
-        if (Math.abs(dx) + Math.abs(dy) > 5) moved = true;
-
-        if (moved && steps[currentStep].model) {
-          steps[currentStep].model.rotation.y += dx * 0.008;
-          steps[currentStep].model.rotation.x += dy * 0.008;
+        if(Math.abs(dx)+Math.abs(dy)>5) moved=true;
+        if(moved && steps[currentStep].model){
+          steps[currentStep].model.rotation.y += dx*0.008;
+          steps[currentStep].model.rotation.x += dy*0.008;
         }
-
         sx = e.touches[0].clientX;
         sy = e.touches[0].clientY;
       });
-
-      document.addEventListener("touchend", () => {
-        dragging = false;
+      document.addEventListener("touchend",()=>{dragging=false;});
+      document.addEventListener("mousedown",e=>{
+        if(!targetFound) return; dragging=true; moved=false; sx=e.clientX; sy=e.clientY;
       });
-
-      document.addEventListener("mousedown", e => {
-        if (!targetFound) return;
-        dragging = true;
-        moved = false;
-        sx = e.clientX;
-        sy = e.clientY;
-      });
-
-      document.addEventListener("mousemove", e => {
-        if (!dragging || !targetFound) return;
-
-        const dx = e.clientX - sx;
-        const dy = e.clientY - sy;
-
-        if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
-
-        if (moved && steps[currentStep].model) {
-          steps[currentStep].model.rotation.y += dx * 0.008;
-          steps[currentStep].model.rotation.x += dy * 0.008;
+      document.addEventListener("mousemove",e=>{
+        if(!dragging || !targetFound) return;
+        const dx=e.clientX-sx, dy=e.clientY-sy;
+        if(Math.abs(dx)+Math.abs(dy)>2) moved=true;
+        if(moved && steps[currentStep].model){
+          steps[currentStep].model.rotation.y+=dx*0.008;
+          steps[currentStep].model.rotation.x+=dy*0.008;
         }
-
-        sx = e.clientX;
-        sy = e.clientY;
+        sx=e.clientX; sy=e.clientY;
       });
+      document.addEventListener("mouseup",()=>{dragging=false;});
 
-      document.addEventListener("mouseup", () => {
-        dragging = false;
-      });
-
-      /* =====================
-         Start AR
-      ====================== */
+      // ========== Start AR ==========
       await loadStep(0);
       await mindarThree.start();
 
       const clock = new THREE.Clock();
-      renderer.setAnimationLoop(() => {
+      renderer.setAnimationLoop(()=>{
         const delta = clock.getDelta();
-        mixers.forEach(m => m.update(delta));
-        renderer.render(scene, camera);
+        mixers.forEach(m=>m.update(delta));
+        renderer.render(scene,camera);
       });
 
-    } catch (e) {
-      console.error("AR ERROR:", e);
+    } catch(e){
+      console.error("AR ERROR:",e);
     }
   };
 
