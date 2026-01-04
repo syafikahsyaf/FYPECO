@@ -151,9 +151,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       instructionBox.innerHTML = `
         <h2 style="margin:0 0 10px; font-size:clamp(20px,4vw,26px)">📱 Cara Interaksi</h2>
-        <p style="font-size:clamp(14px,3.5vw,18px); line-height:1.4">
-          👉 <b>1 Tap</b> : Tukar scene + mainkan audio<br>
-          👉 <b>Drag</b> : Pusing model 3D<br><br>
+         <p style="font-size:clamp(14px,3.5vw,18px); line-height:1.4">
+          👉 <b>1 Tap</b> : Tukar Paparan AR <br>
+          👉 <b>Drag/Seret</b> : Pusing model 3D<br><br>
           Arahkan kamera ke <b>image target</b> untuk mula.
         </p>
         <button id="startARBtn"
