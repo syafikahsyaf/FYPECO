@@ -20,7 +20,6 @@ body {
     justify-content: center;
     align-items: center;
     min-height: 100dvh;
-    padding: 0;
 }
 
 /* ————————————————— MAIN CONTAINER ————————————————— */
@@ -42,10 +41,16 @@ body {
     height: clamp(45px, 10vw, 70px);
     cursor: pointer;
     z-index: 20;
+    transition: 0.2s;
 }
 
 #sound-btn { left: 15px; }
 #info-btn  { right: 15px; }
+
+#sound-btn:hover,
+#info-btn:hover {
+    transform: scale(1.1);
+}
 
 /* ————————————————— TITLE ————————————————— */
 .title {
@@ -72,17 +77,17 @@ body {
     letter-spacing: 2px;
 }
 
-/* ————————————————— BUTTON HIJAU ASAL ————————————————— */
+/* ————————————————— BUTTON MENU ————————————————— */
 .menu-btn {
     display: block;
     width: min(260px, 80%);
     margin: 15px auto;
     padding: 16px;
 
-    background: #8cd878;            /* warna hijau asal */
+    background: #8cd878;
     border: none;
     border-radius: 35px;
-    box-shadow: 0px 4px #62b251;    /* shadow asal */
+    box-shadow: 0px 4px #62b251;
     
     font-size: clamp(18px, 4vw, 24px);
     color: #0a331b;
@@ -90,6 +95,11 @@ body {
 
     cursor: pointer;
     transition: 0.2s;
+}
+
+.menu-btn:hover {
+    transform: scale(1.05);
+    background: #9ee88a;
 }
 
 .menu-btn:active {
@@ -118,17 +128,7 @@ body {
     text-align: center;
 }
 
-.info-popup h2 {
-    margin-top: 0;
-    font-size: clamp(22px, 5vw, 30px);
-}
-
-.info-popup p {
-    font-size: clamp(14px, 4vw, 20px);
-    text-align: justify;
-}
-
-/* ————————————————— POPUP BUTTON ————————————————— */
+/* ————————————————— POPUP BUTTONS ————————————————— */
 .close-popup,
 .download-btn {
     padding: 12px 22px;
@@ -138,6 +138,16 @@ body {
     font-family: 'Baloo 2', cursive;
     font-size: clamp(16px, 4vw, 20px);
     margin-top: 18px;
+    transition: 0.2s;
+}
+
+.close-popup {
+    background: #8cd878;
+}
+
+.close-popup:hover {
+    transform: scale(1.05);
+    background: #9ee88a;
 }
 
 .download-btn {
@@ -151,8 +161,9 @@ body {
     margin-right: auto;
 }
 
-.close-popup {
-    background: #8cd878;
+.download-btn:hover {
+    transform: scale(1.05);
+    background: #5fcf65;
 }
   </style>
 </head>
@@ -161,55 +172,49 @@ body {
 
 <div class="container">
 
-  <!-- === ICON BUNYI === -->
+  <!-- ICONS -->
   <img id="sound-btn" src="image-menu/sound.png">
-
-  <!-- === ICON INFO === -->
   <img id="info-btn" src="image-menu/info.png">
 
-  <!-- === TITLE === -->
+  <!-- TITLE -->
   <div class="title">
     <img src="image-menu/logo.png">
     <h1>ECO-RECYCLE</h1>
   </div>
 
-  <!-- === BUTTON MENU (HIJAU ASAL) === -->
+  <!-- MENU BUTTONS -->
   <button class="menu-btn" onclick="goMula()">MULA</button>
   <button class="menu-btn" onclick="bukaCara()">CARA GUNA</button>
   <button class="menu-btn" onclick="bukaDownload()">MUAT TURUN IMEJ SASARAN</button>
 
 </div>
 
-<!-- === POPUP INFO === -->
+<!-- POPUPS -->
 <div id="info-popup" class="info-popup">
-  <h2>Maklumat & Kredit</h2>
+ <h2>Maklumat & Kredit</h2>
   <p>Dibangunkan oleh: <b>Nurul Syafikah Bt Gunar</b></p>
-	 <p>Penyelia: <b>Dr.Wan Nooraishya Wan Ahmad</b></p>
+   <p>Penyelia: <b>Dr.Wan Nooraishya Wan Ahmad</b></p>
   <p>Aplikasi ini direka untuk membantu kanak-kanak mengenali jenis bahan buangan, belajar kitar semula melalui AR, model 3D dan kuiz.</p>
   <button class="close-popup" onclick="tutupInfo()">Tutup</button>
 </div>
 
-<!-- === POPUP CARA GUNA === -->
 <div id="cara-popup" class="info-popup">
-  <h2>Cara Guna Aplikasi</h2>
+<h2>Cara Guna Aplikasi</h2>
   <p>1. Tekan <b>Mula</b> untuk melihat AR.</p>
-  <p>2. Halakan kamera ke <b>imej sasaran</b> untuk mula. <b>1 Tap</b> pada model 3D untuk tukar paparan AR. <b>Drag/Seret</b> model 3D untuk pusing. Ketik ikon <b>Suara</b> untuk henti atau sambung audio. Klik ikon <b>Info</b> untuk lihat sarikata narasi.</p>
+  <p>2. Halakan kamera ke <b>imej sasaran</b> untuk mula. <b> SatuS Tap</b> pada model 3D untuk tukar paparan AR. <b>Drag/Seret</b> model 3D untuk pusing. Ketik ikon <b>Suara</b> untuk henti atau sambung audio. Klik ikon <b>Info</b> untuk lihat sarikata narasi.</p>
   <p>3. Tekan butang menu <b>Info</b> untuk lihat fakta menarik.Tekan setiap kad untuk mendengar audio maklumat.</p>
   <p>4. Jawab kuiz untuk uji pengetahuan anda.</p>
   <button class="close-popup" onclick="tutupCara()">Tutup</button>
 </div>
 
-<!-- === POPUP DOWNLOAD === -->
 <div id="download-popup" class="info-popup">
-  <h2>Muat Turun Kad AR</h2>
+  <h2>Muat Turun</h2>
+	<h2>Muat Turun Kad AR</h2>
   <p>Klik butang untuk memuat turun semua imej sasaran.</p>
-
   <a class="download-btn" href="assets/imejtargets.zip" download>Muat Turun</a>
-
   <button class="close-popup" onclick="tutupDownload()">Tutup</button>
 </div>
 
-<!-- === BACKGROUND MUSIC === -->
 <audio id="bg-music" src="sounds/home/musicbg.mp3" loop autoplay></audio>
 
 <script>
@@ -220,21 +225,16 @@ let caraPopup = document.getElementById("cara-popup");
 let downloadPopup = document.getElementById("download-popup");
 let soundOn = true;
 
-// Toggle Sound
 soundBtn.onclick = () => {
     soundOn = !soundOn;
     soundOn ? music.play() : music.pause();
 };
 
-// Navigation
 function goMula() { window.location.href = "mula.html"; }
-
-// OPEN POPUPS
 function bukaCara() { caraPopup.style.display = "block"; }
 function bukaDownload() { downloadPopup.style.display = "block"; }
 document.getElementById("info-btn").onclick = () => { infoPopup.style.display = "block"; };
 
-// CLOSE POPUPS
 function tutupInfo() { infoPopup.style.display = "none"; }
 function tutupCara() { caraPopup.style.display = "none"; }
 function tutupDownload() { downloadPopup.style.display = "none"; }
