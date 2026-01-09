@@ -154,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <p style="font-size:clamp(14px,3.5vw,18px); line-height:1.4">
           👉 <b>1 Tap</b> : Tukar Paparan AR <br>
           👉 <b>Drag/Seret</b> : Pusing model 3D<br><br>
-          Arahkan kamera ke <b>image target</b> untuk mula.
+          Arahkan kamera ke <b>Imej Sasaran</b> untuk mula.
         </p>
         <button id="startARBtn"
           style="
