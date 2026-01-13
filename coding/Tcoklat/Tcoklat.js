@@ -94,8 +94,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <p style="font-size:clamp(14px,3.5vw,18px); line-height:1.4">
           👉 <b>1 Tap</b> : Tukar Model AR <br>
           👉 <b>Drag</b> : Pusing Model 3D <br>
-          👉 <b>Pinch/Scroll</b> : Zoom In/Out <br><br>
-          Arahkan kamera ke <b>Imej Sasaran</b>.
+          👉 <b>Pinch/Scroll</b> : Besarkan/Kecilkan Model<br><br>
+           Arahkan kamera ke <b>Imej Sasaran</b> untuk mula.
         </p>
         <button id="startARBtn" style="margin-top:14px; padding:12px 22px; font-size:clamp(15px,4vw,18px); background:#8cd878; border:none; border-radius:18px; font-weight:bold; cursor:pointer;">FAHAM & MULA</button>
       `;
