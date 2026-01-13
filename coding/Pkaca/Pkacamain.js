@@ -150,12 +150,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       instructionBox.innerHTML = `
         <h2 style="margin:0 0 10px; font-size:clamp(20px,4vw,26px)">📱 Cara Interaksi</h2>
-        <p style="font-size:clamp(14px,3.5vw,18px); line-height:1.4">
+        <p style="font-size:clamp(14px,3.5vw,18px); line-height:1.4; text-align:left; display:inline-block;">
           👉 <b>1 Tap</b> : Tukar Paparan AR <br>
           👉 <b>Drag</b> : Pusing model 3D<br>
-          👉 <b>Pinch</b> : Zoom In/Out (Guna 2 jari)<br><br>
+          👉 <b>Pinch(Cubit)/Scroll</b> : Zoom Besar/Kecil<br><br>
           Arahkan kamera ke <b>Imej Sasaran</b> untuk mula.
-        </p>
+        </p><br>
         <button id="startARBtn" style="margin-top:14px; padding:12px 22px; font-size:clamp(15px,4vw,18px); background:#8cd878; border:none; border-radius:18px; font-weight:bold; cursor:pointer;">
           FAHAM & MULA
         </button>
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       /* =====================
-          Loader
+          Loader & Steps
       ====================== */
       const dLoader = new DRACOLoader();
       dLoader.setDecoderPath("/FYPECO/libs/draco/");
@@ -180,11 +180,11 @@ document.addEventListener("DOMContentLoaded", () => {
       camera.add(listener);
 
       const steps = [
-        { glb: "/FYPECO/assets/models/Mproseskitar/Kaca1.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca1.mp3", scale: 0.25, info: "Semua botol dan balang kaca dikumpul dan dibersihkan.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Kaca2.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca2.mp3", scale: 0.25, info: "Botol kaca dihancurkan menjadi kepingan kecil dipanggil cullet.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkaca3.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca3.mp3", scale: 0.22, info: "Cullet dimasukkan ke dalam relau panas sehingga cair.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkaca4.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca4.mp3", scale: 0.22, info: "Kaca cair dituangkan ke dalam acuan untuk membentuk produk baru.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkaca5.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca5.mp3", scale: 0.22, info: "Kaca boleh dikitar semula berkali-kali menjadi produk baru.", loaded: false }
+        { sceneName: "Proses 1", glb: "/FYPECO/assets/models/Mproseskitar/Kaca1.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca1.mp3", scale: 0.25, info: "Semua botol dan balang kaca dikumpul dan dibersihkan.", loaded: false },
+        { sceneName: "Proses 2", glb: "/FYPECO/assets/models/Mproseskitar/Kaca2.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca2.mp3", scale: 0.25, info: "Botol kaca dihancurkan menjadi kepingan kecil dipanggil cullet.", loaded: false },
+        { sceneName: "Proses 3", glb: "/FYPECO/assets/models/Mproseskitar/Pkaca3.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca3.mp3", scale: 0.22, info: "Cullet dimasukkan ke dalam relau panas sehingga cair.", loaded: false },
+        { sceneName: "Proses 4", glb: "/FYPECO/assets/models/Mproseskitar/Pkaca4.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca4.mp3", scale: 0.22, info: "Kaca cair dituangkan ke dalam acuan untuk membentuk produk baru.", loaded: false },
+        { sceneName: "Proses 5", glb: "/FYPECO/assets/models/Mproseskitar/Pkaca5.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkaca5.mp3", scale: 0.22, info: "Kaca boleh dikitar semula berkali-kali menjadi produk baru.", loaded: false }
       ];
 
       let currentStep = 0;
@@ -193,7 +193,17 @@ document.addEventListener("DOMContentLoaded", () => {
       const anchor = mindarThree.addAnchor(0);
 
       /* =====================
-          Logic & Controls
+          Unlock Audio
+      ====================== */
+      const unlockAudio = () => {
+        const ctx = THREE.AudioContext.getContext();
+        if (ctx.state === "suspended") ctx.resume();
+      };
+      document.addEventListener("touchstart", unlockAudio, { once: true });
+      document.addEventListener("click", unlockAudio, { once: true });
+
+      /* =====================
+          PROGRESS UI
       ====================== */
       const progressText = document.createElement("div");
       Object.assign(progressText.style, {
@@ -220,131 +230,201 @@ document.addEventListener("DOMContentLoaded", () => {
         progressBarFill.style.width = `${((index + 1) / steps.length) * 100}%`;
       };
 
+      /* =====================
+          Navigation Logic
+      ====================== */
       async function loadStep(index) {
         const step = steps[index];
         if (step.loaded) return;
+
         const gltf = await new Promise((res, rej) => gltfLoader.load(step.glb, res, undefined, rej));
         gltf.scene.scale.setScalar(step.scale);
         gltf.scene.visible = false;
         anchor.group.add(gltf.scene);
         step.model = gltf.scene;
+
         const mixer = new THREE.AnimationMixer(gltf.scene);
         if (gltf.animations.length) mixer.clipAction(gltf.animations[0]).play();
         mixers.push(mixer);
+
         const clip = await loadAudio(step.audio);
         const audio = new THREE.PositionalAudio(listener);
         audio.setBuffer(clip);
+        audio.setLoop(false);
         audio.setRefDistance(999999);
         anchor.group.add(audio);
         step.audioObj = audio;
+
         step.loaded = true;
       }
 
       async function goToStep(index) {
         await loadStep(index);
+
         steps.forEach((s, i) => {
           if (s.model) s.model.visible = (i === index);
           if (s.audioObj && s.audioObj.isPlaying) s.audioObj.stop();
         });
+
         currentStep = index;
         infoText.innerText = steps[index].info;
+
         if (soundOn && targetFound && steps[index].audioObj) steps[index].audioObj.play();
+
         updateProgress(index);
       }
 
-      anchor.onTargetFound = async () => { targetFound = true; await goToStep(currentStep); };
-      anchor.onTargetLost = () => { targetFound = false; steps.forEach(s => s.audioObj?.stop()); };
+      anchor.onTargetFound = async () => {
+        targetFound = true;
+        instructionOverlay.style.display = "none";
+        await goToStep(currentStep);
+      };
+
+      anchor.onTargetLost = () => {
+        targetFound = false;
+        steps.forEach(s => s.audioObj?.stop());
+      };
 
       /* =====================
-          ZOOM & INTERACTION
+          INTERACTION LOGIC (ROTATE + ZOOM + TAP)
       ====================== */
+      const MIN_SCALE = 0.05;
+      const MAX_SCALE = 1.0;
+      let initialPinchDistance = 0;
       let dragging = false;
-      let moved = false;
+      let moved = false; 
       let sx = 0, sy = 0;
-      let initialPinchDist = 0;
+      let touchHandled = false;
 
       const raycaster = new THREE.Raycaster();
       const mouse = new THREE.Vector2();
 
+      const getDistance = (touches) => Math.hypot(touches[0].pageX - touches[1].pageX, touches[0].pageY - touches[1].pageY);
+
       function tryTap(x, y) {
         if (!targetFound || moved) return;
+
         mouse.x = (x / window.innerWidth) * 2 - 1;
         mouse.y = -(y / window.innerHeight) * 2 + 1;
         raycaster.setFromCamera(mouse, camera);
-        const hit = raycaster.intersectObject(steps[currentStep].model, true);
-        if (hit.length) goToStep((currentStep + 1) % steps.length);
+
+        const currentModel = steps[currentStep].model;
+        if (!currentModel) return;
+
+        const hit = raycaster.intersectObject(currentModel, true);
+        if (hit.length > 0) {
+          goToStep((currentStep + 1) % steps.length);
+        }
       }
 
-      // Touch Events
+      // --- TOUCH EVENTS ---
       document.addEventListener("touchstart", (e) => {
         if (!targetFound) return;
         dragging = true;
         moved = false;
+
         if (e.touches.length === 1) {
           sx = e.touches[0].clientX;
           sy = e.touches[0].clientY;
         } else if (e.touches.length === 2) {
-          initialPinchDist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+          initialPinchDistance = getDistance(e.touches);
         }
-      });
+      }, { passive: false });
 
       document.addEventListener("touchmove", (e) => {
         if (!dragging || !targetFound) return;
-        if (e.touches.length === 1) {
+
+        if (e.touches.length === 1 && !initialPinchDistance) {
           const dx = e.touches[0].clientX - sx;
           const dy = e.touches[0].clientY - sy;
           if (Math.abs(dx) + Math.abs(dy) > 5) moved = true;
+
           if (moved && steps[currentStep].model) {
             steps[currentStep].model.rotation.y += dx * 0.008;
             steps[currentStep].model.rotation.x += dy * 0.008;
           }
-          sx = e.touches[0].clientX; sy = e.touches[0].clientY;
-        } else if (e.touches.length === 2) {
+          sx = e.touches[0].clientX;
+          sy = e.touches[0].clientY;
+        } 
+        else if (e.touches.length === 2) {
           moved = true;
-          const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
-          const zoomFactor = dist / initialPinchDist;
-          const newScale = Math.min(Math.max(steps[currentStep].model.scale.x * zoomFactor, 0.05), 1.0);
-          steps[currentStep].model.scale.setScalar(newScale);
-          initialPinchDist = dist;
+          const currentDist = getDistance(e.touches);
+          const diff = (currentDist - initialPinchDistance) * 0.001;
+          
+          if (steps[currentStep].model) {
+            let newScale = steps[currentStep].model.scale.x + diff;
+            newScale = Math.min(Math.max(newScale, MIN_SCALE), MAX_SCALE);
+            steps[currentStep].model.scale.setScalar(newScale);
+          }
+          initialPinchDistance = currentDist;
         }
-      });
+      }, { passive: false });
 
       document.addEventListener("touchend", (e) => {
         dragging = false;
-        if (e.touches.length === 0) tryTap(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        initialPinchDistance = 0;
+        if (e.touches.length === 0) {
+          touchHandled = true; // Elak mouseup trigger double
+          tryTap(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }
       });
 
-      // Mouse Wheel Zoom
-      window.addEventListener("wheel", (e) => {
-        if (!targetFound || !steps[currentStep].model) return;
-        const scaleChange = e.deltaY > 0 ? 0.95 : 1.05;
-        const newScale = Math.min(Math.max(steps[currentStep].model.scale.x * scaleChange, 0.05), 1.0);
-        steps[currentStep].model.scale.setScalar(newScale);
+      // --- MOUSE EVENTS ---
+      document.addEventListener("mousedown", (e) => {
+        if (!targetFound) return;
+        dragging = true;
+        moved = false;
+        sx = e.clientX;
+        sy = e.clientY;
       });
 
-      // Mouse Drag
-      document.addEventListener("mousedown", e => { dragging = true; moved = false; sx = e.clientX; sy = e.clientY; });
-      document.addEventListener("mousemove", e => {
+      document.addEventListener("mousemove", (e) => {
         if (!dragging || !targetFound) return;
         const dx = e.clientX - sx;
         const dy = e.clientY - sy;
-        if (Math.abs(dx) + Math.abs(dy) > 2) moved = true;
+        if (Math.abs(dx) + Math.abs(dy) > 3) moved = true;
+
         if (moved && steps[currentStep].model) {
           steps[currentStep].model.rotation.y += dx * 0.008;
           steps[currentStep].model.rotation.x += dy * 0.008;
         }
-        sx = e.clientX; sy = e.clientY;
+        sx = e.clientX;
+        sy = e.clientY;
       });
-      document.addEventListener("mouseup", e => { dragging = false; if (!moved) tryTap(e.clientX, e.clientY); });
 
+      document.addEventListener("mouseup", (e) => {
+        dragging = false;
+        if (touchHandled) {
+          touchHandled = false;
+          return;
+        }
+        tryTap(e.clientX, e.clientY);
+      });
+
+      window.addEventListener("wheel", (e) => {
+        if (!targetFound || !steps[currentStep].model) return;
+        const zoomSpeed = 0.0005;
+        let newScale = steps[currentStep].model.scale.x - e.deltaY * zoomSpeed;
+        newScale = Math.min(Math.max(newScale, MIN_SCALE), MAX_SCALE);
+        steps[currentStep].model.scale.setScalar(newScale);
+      }, { passive: false });
+
+      /* =====================
+          Start AR
+      ====================== */
       await mindarThree.start();
+
       const clock = new THREE.Clock();
       renderer.setAnimationLoop(() => {
         const delta = clock.getDelta();
         mixers.forEach(m => m.update(delta));
         renderer.render(scene, camera);
       });
-    } catch (e) { console.error("AR ERROR:", e); }
+
+    } catch (e) {
+      console.error("AR ERROR:", e);
+    }
   };
+
   start();
 });
