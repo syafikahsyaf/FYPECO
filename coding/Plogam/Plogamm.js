@@ -151,9 +151,9 @@ document.addEventListener("DOMContentLoaded", () => {
       instructionBox.innerHTML = `
         <h2 style="margin:0 0 10px; font-size:clamp(20px,4vw,26px)">📱 Cara Interaksi</h2>
         <p style="font-size:clamp(14px,3.5vw,18px); line-height:1.4">
-            👉 <b>1 Tap</b> : Tukar Paparan AR <br>
-          👉 <b>Drag</b> : Pusing model 3D<br>
-          👉 <b>Pinch/Scroll</b> : Zoom Besar/Kecil<br><br>
+            👉 <b>1 Tap(sentuhan)</b> : Tukar Paparan AR <br>
+          👉 <b>Drag(Seret)</b> : Pusing model 3D<br>
+          👉 <b>Pinch(Cubit)/Scroll</b> : Zoom Besar/Kecil<br><br>
           Arahkan kamera ke <b>Imej Sasaran</b> untuk mula.
         </p>
         <button id="startARBtn" style="margin-top:14px; padding:12px 22px; font-size:clamp(15px,4vw,18px); background:#8cd878; border:none; border-radius:18px; font-weight:bold; cursor:pointer;">
@@ -378,4 +378,5 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) { console.error("AR ERROR:", e); }
   };
   start();
+
 });
