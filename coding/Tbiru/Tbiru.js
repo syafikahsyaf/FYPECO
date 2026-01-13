@@ -19,10 +19,13 @@ document.addEventListener("DOMContentLoaded", () => {
       let targetFound = false;
       let currentStep = 0;
       let isPinching = false;
+      let initialPinchDistance = null;
+      const MIN_SCALE = 0.05; 
+      const MAX_SCALE = 0.8;
       const mixers = [];
 
       /* =====================
-          FUNGSI STOP AUDIO (KESELAMATAN)
+          FUNGSI BERHENTIKAN SEMUA AUDIO
       ====================== */
       const stopAllAudios = () => {
         steps.forEach(s => {
@@ -33,26 +36,43 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       /* =====================
-          UI BUTTONS (BACK, INFO, SOUND)
+          UI ELEMENTS (GAYA ASAL ANDA)
       ====================== */
+      
+      // 1. BACK BUTTON
       const backBtn = document.createElement("a");
       backBtn.innerHTML = `<img src="/FYPECO/image-menu/back.png" style="width:100%; height:auto; object-fit:contain;">`;
       backBtn.onclick = (e) => { e.stopPropagation(); stopAllAudios(); window.location.href = "/FYPECO/tongkitarsemula.html"; };
-      Object.assign(backBtn.style, { position: "fixed", top: "20px", left: "20px", width: "80px", zIndex: "9999", cursor: "pointer" });
+      Object.assign(backBtn.style, { position: "fixed", top: "clamp(10px, 3vw, 20px)", left: "clamp(10px, 3vw, 20px)", width: "clamp(70px, 12vw, 110px)", cursor: "pointer", zIndex: "9999" });
       document.body.appendChild(backBtn);
 
+      // 2. INFO BUTTON & INFO TEXT (POPUP BAWAH)
       const infoBtn = document.createElement("div");
       infoBtn.innerHTML = "💡";
-      Object.assign(infoBtn.style, { position: "fixed", top: "20px", right: "20px", fontSize: "40px", zIndex: "9999", cursor: "pointer" });
+      Object.assign(infoBtn.style, { position: "fixed", top: "clamp(10px, 3vw, 20px)", right: "clamp(10px, 3vw, 20px)", fontSize: "clamp(32px, 8vw, 50px)", cursor: "pointer", zIndex: "9999", userSelect: "none" });
       document.body.appendChild(infoBtn);
 
       const infoText = document.createElement("div");
-      Object.assign(infoText.style, { position: "fixed", bottom: "100px", left: "50%", transform: "translateX(-50%)", padding: "14px 20px", background: "#8cd878", border: "3px solid #5faa48", borderRadius: "25px", display: "none", zIndex: "9999", fontWeight: "bold", textAlign: "center", width: "80%" });
+      Object.assign(infoText.style, { position: "fixed", bottom: "100px", left: "50%", transform: "translateX(-50%) scale(0.9)", padding: "14px 20px", maxWidth: "92%", background: "#8cd878", border: "3px solid #5faa48", color: "#1e4d14", fontSize: "clamp(16px, 4vw, 22px)", fontWeight: "bold", fontFamily: "'Comic Sans MS','Poppins'", borderRadius: "25px", boxShadow: "0px 8px 18px rgba(80,150,90,0.3)", display: "none", opacity: "0", pointerEvents: "none", transition: "all .25s ease", zIndex: "9999", textAlign: "center" });
       document.body.appendChild(infoText);
 
+      let infoShown = false;
+      infoBtn.onclick = (e) => {
+        e.stopPropagation();
+        infoShown = !infoShown;
+        if (infoShown) {
+          infoText.style.display = "block";
+          setTimeout(() => { infoText.style.opacity = "1"; infoText.style.transform = "translateX(-50%) scale(1)"; }, 10);
+        } else {
+          infoText.style.opacity = "0"; infoText.style.transform = "translateX(-50%) scale(0.9)";
+          setTimeout(() => infoText.style.display = "none", 200);
+        }
+      };
+
+      // 3. SOUND BUTTON
       const soundBtn = document.createElement("div");
       soundBtn.innerHTML = "🔊";
-      Object.assign(soundBtn.style, { position: "fixed", top: "20px", right: "80px", fontSize: "40px", zIndex: "9999", cursor: "pointer" });
+      Object.assign(soundBtn.style, { position: "fixed", top: "clamp(10px, 3vw, 20px)", right: "clamp(60px, 15vw, 80px)", fontSize: "clamp(32px, 8vw, 50px)", cursor: "pointer", zIndex: "9999", userSelect: "none" });
       document.body.appendChild(soundBtn);
 
       soundBtn.onclick = (e) => {
@@ -60,12 +80,61 @@ document.addEventListener("DOMContentLoaded", () => {
         soundOn = !soundOn;
         soundBtn.innerHTML = soundOn ? "🔊" : "🔇";
         if (!soundOn) stopAllAudios();
-        else if (targetFound && steps[currentStep].audioObj) steps[currentStep].audioObj.play();
+        else if (targetFound && steps[currentStep].audioObj && !steps[currentStep].audioObj.isPlaying) {
+          steps[currentStep].audioObj.play();
+        }
       };
 
+      // 4. PROGRESS TEXT (DI ATAS)
+      const progressText = document.createElement("div");
+      Object.assign(progressText.style, { position: "fixed", top: "14px", left: "50%", transform: "translateX(-50%)", fontSize: "clamp(18px,4vw,24px)", fontWeight: "bold", fontFamily: "'Comic Sans MS'", color: "black", background: "white", padding: "6px 16px", borderRadius: "12px", border: "2px solid #f0f0f0", zIndex: "9999", pointerEvents: "none", textAlign: "center", boxShadow: "0 4px 8px rgba(0,0,0,0.2)" });
+      document.body.appendChild(progressText);
+
+      // 5. PROGRESS BAR (DI BAWAH)
+      const progressBarContainer = document.createElement("div");
+      Object.assign(progressBarContainer.style, { position: "fixed", bottom: "12px", left: "50%", transform: "translateX(-50%)", width: "80%", height: "14px", background: "rgba(200,200,200,0.4)", borderRadius: "12px", overflow: "hidden", zIndex: "9999" });
+      document.body.appendChild(progressBarContainer);
+
+      const progressBarFill = document.createElement("div");
+      Object.assign(progressBarFill.style, { width: "0%", height: "100%", borderRadius: "12px", background: "linear-gradient(90deg, #ff9a9e, #fad0c4, #a1c4fd, #c2e9fb)", transition: "width 0.3s ease" });
+      progressBarContainer.appendChild(progressBarFill);
+
+      const updateUI = (index) => {
+        progressText.innerText = steps[index].sceneName;
+        progressBarFill.style.width = `${((index + 1) / steps.length) * 100}%`;
+        infoText.innerText = steps[index].info;
+      };
+
+      // 6. INSTRUCTION OVERLAY (POPUP MULA)
+      const instructionOverlay = document.createElement("div");
+      Object.assign(instructionOverlay.style, { position: "fixed", inset: "0", background: "rgba(0,0,0,0.55)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: "99999", fontFamily: "'Poppins', sans-serif" });
+      const instructionBox = document.createElement("div");
+      Object.assign(instructionBox.style, { background: "#ffffff", padding: "clamp(18px, 4vw, 30px)", borderRadius: "25px", maxWidth: "92%", width: "clamp(260px, 80vw, 420px)", textAlign: "center", boxShadow: "0 15px 35px rgba(0,0,0,.3)" });
+      instructionBox.innerHTML = `
+        <h2 style="margin:0 0 10px; font-size:clamp(20px,4vw,26px)">📱 Cara Interaksi</h2>
+        <p style="font-size:clamp(14px,3.5vw,18px); line-height:1.4">
+          👉 <b>1 Tap</b> : Tukar Paparan AR <br>
+          👉 <b>Drag</b> : Pusing Model 3D <br>
+          👉 <b>Scroll/Pinch</b> : Zoom In/Out <br><br>
+          Arahkan kamera ke <b>Imej Sasaran</b>.
+        </p>
+        <button id="startARBtn" style="margin-top:14px; padding:12px 22px; font-size:clamp(15px,4vw,18px); background:#8cd878; border:none; border-radius:18px; font-weight:bold; cursor:pointer;">FAHAM & MULA</button>
+      `;
+      instructionOverlay.appendChild(instructionBox);
+      document.body.appendChild(instructionOverlay);
+      document.getElementById("startARBtn").onclick = () => { instructionOverlay.style.display = "none"; };
+
       /* =====================
-          STEPS DATA
+          LOADER & STEPS DATA
       ====================== */
+      const dLoader = new DRACOLoader();
+      dLoader.setDecoderPath("/FYPECO/libs/draco/");
+      const gltfLoader = new GLTFLoader();
+      gltfLoader.setDRACOLoader(dLoader);
+
+      const listener = new THREE.AudioListener();
+      camera.add(listener);
+
       const steps = [
         { sceneName: "Jenis Sampah yang sesuai", glb: "/FYPECO/assets/models/Mtongkitar/kertasmain.glb", audio: "/FYPECO/assets/suara/Stongkitar/tbiru1.mp3", scale: 0.2, info: "Tong biru sesuai untuk sampah jenis kertas.", loaded: false },
         { sceneName: "Bahan boleh dikitar semula", glb: "/FYPECO/assets/models/Mtongkitar/kertas1.glb", audio: "/FYPECO/assets/suara/Stongkitar/tbiru2.mp3", scale: 0.2, info: "Bahan kertas yang boleh dikitar semula adalah seperti surat khabar, kotak kertas dan sampul surat.", loaded: false },
@@ -73,13 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
       ];
 
       const anchor = mindarThree.addAnchor(0);
-      const listener = new THREE.AudioListener();
-      camera.add(listener);
-      const gltfLoader = new GLTFLoader();
 
-      /* =====================
-          CORE FUNCTIONS
-      ====================== */
       async function loadStep(index) {
         const step = steps[index];
         if (step.loaded) return;
@@ -88,28 +151,24 @@ document.addEventListener("DOMContentLoaded", () => {
         gltf.scene.visible = false;
         anchor.group.add(gltf.scene);
         step.model = gltf.scene;
+        const mixer = new THREE.AnimationMixer(gltf.scene);
+        if (gltf.animations.length) mixer.clipAction(gltf.animations[0]).play();
+        mixers.push(mixer);
         const clip = await loadAudio(step.audio);
-        const audio = new THREE.Audio(listener); // Guna THREE.Audio untuk kawalan lebih stabil
+        const audio = new THREE.Audio(listener);
         audio.setBuffer(clip);
         step.audioObj = audio;
         step.loaded = true;
       }
 
       async function goToStep(index) {
-        stopAllAudios(); // MATIKAN SEMUA SEBELUM JALANKAN BARU
+        stopAllAudios(); 
         await loadStep(index);
-        
-        steps.forEach((s, i) => {
-          if (s.model) s.model.visible = (i === index);
-        });
-
+        steps.forEach((s, i) => { if (s.model) s.model.visible = (i === index); });
         currentStep = index;
-        infoText.innerText = steps[index].info;
-        
+        updateUI(index);
         if (soundOn && targetFound && steps[index].audioObj) {
-          setTimeout(() => {
-            if (!steps[index].audioObj.isPlaying) steps[index].audioObj.play();
-          }, 100); 
+          setTimeout(() => { if (!steps[index].audioObj.isPlaying) steps[index].audioObj.play(); }, 200);
         }
       }
 
@@ -132,27 +191,35 @@ document.addEventListener("DOMContentLoaded", () => {
         if (hit.length > 0) goToStep((currentStep + 1) % steps.length);
       }
 
-      // Laptop Scroll Zoom
+      // 💻 LAPTOP ZOOM (SCROLL)
       window.addEventListener("wheel", (e) => {
         if (!targetFound || !steps[currentStep].model) return;
         let s = steps[currentStep].model.scale.x + (e.deltaY * -0.0005);
-        steps[currentStep].model.scale.setScalar(Math.min(Math.max(s, 0.05), 0.8));
+        steps[currentStep].model.scale.setScalar(Math.min(Math.max(s, MIN_SCALE), MAX_SCALE));
       }, { passive: false });
 
-      // Touch Events
+      // 📱 MOBILE & LAPTOP EVENTS
       document.addEventListener("touchstart", e => {
-        if (e.touches.length === 2) isPinching = true;
+        if (e.touches.length === 2) { isPinching = true; initialPinchDistance = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY); }
         else { dragging = true; moved = false; sx = e.touches[0].clientX; sy = e.touches[0].clientY; }
       });
 
       document.addEventListener("touchmove", e => {
         if (!targetFound || !steps[currentStep].model) return;
         if (e.touches.length === 1 && dragging) {
-          const dx = e.touches[0].clientX - sx;
-          const dy = e.touches[0].clientY - sy;
+          const dx = e.touches[0].clientX - sx; const dy = e.touches[0].clientY - sy;
           if (Math.abs(dx) > 5 || Math.abs(dy) > 5) moved = true;
           steps[currentStep].model.rotation.y += dx * 0.01;
           sx = e.touches[0].clientX; sy = e.touches[0].clientY;
+        } else if (e.touches.length === 2 && isPinching) {
+          moved = true;
+          const dist = Math.hypot(e.touches[0].pageX - e.touches[1].pageX, e.touches[0].pageY - e.touches[1].pageY);
+          if (initialPinchDistance) {
+            let factor = dist / initialPinchDistance;
+            let newS = Math.min(Math.max(steps[currentStep].model.scale.x * factor, MIN_SCALE), MAX_SCALE);
+            steps[currentStep].model.scale.setScalar(newS);
+          }
+          initialPinchDistance = dist;
         }
       });
 
@@ -161,10 +228,25 @@ document.addEventListener("DOMContentLoaded", () => {
         dragging = false; isPinching = false;
       });
 
-      await mindarThree.start();
-      renderer.setAnimationLoop(() => { renderer.render(scene, camera); });
+      // MOUSE EVENTS (LAPTOP)
+      document.addEventListener("mousedown", e => { if (!targetFound) return; dragging = true; moved = false; sx = e.clientX; sy = e.clientY; });
+      document.addEventListener("mousemove", e => {
+        if (!dragging || !targetFound) return;
+        const dx = e.clientX - sx; if (Math.abs(dx) > 2) moved = true;
+        steps[currentStep].model.rotation.y += dx * 0.01;
+        sx = e.clientX;
+      });
+      document.addEventListener("mouseup", e => { if (!moved && dragging) tryTap(e.clientX, e.clientY); dragging = false; });
 
-    } catch (e) { console.error(e); }
+      await mindarThree.start();
+      const clock = new THREE.Clock();
+      renderer.setAnimationLoop(() => {
+        const delta = clock.getDelta();
+        mixers.forEach(m => m.update(delta));
+        renderer.render(scene, camera);
+      });
+
+    } catch (e) { console.error("AR ERROR:", e); }
   };
   start();
 });
