@@ -28,15 +28,12 @@
       overflow-x:hidden;
     }
 
-    /* =============================
-         MAIN FRAME (RESPONSIVE)
-    ============================= */
     .frame{
       width:100%;
       max-width:900px;
       margin:20px auto;
       padding:20px;
-      padding-top:100px; /* ruang untuk back button */
+      padding-top:100px;
       border:4px solid #7a4fe8;
       border-radius:10px;
       background:rgba(255,255,255,0.2);
@@ -60,11 +57,8 @@
       font-weight:700;
     }
 
-    /* =============================
-         QUIZ CARD
-    ============================= */
     .quiz-area{
-      margin-top:0; /* padding-top frame sudah cukup */
+      margin-top:0;
       background:var(--card);
       border-radius:20px;
       padding:24px;
@@ -96,9 +90,6 @@
       font-weight:600;
     }
 
-    /* =============================
-         ANSWER BUTTONS (2X2 GRID)
-    ============================= */
     .answers{
       display:grid;
       grid-template-columns:repeat(2,1fr);
@@ -123,9 +114,6 @@
       box-shadow:none;
     }
 
-    /* =============================
-         BACK BUTTON (FIXED)
-    ============================= */
     .back{
       position:fixed;
       left:12px;
@@ -142,18 +130,6 @@
       object-fit:contain;
     }
 
-    @media(max-width:720px){
-      .back{
-        width:60px;
-        height:60px;
-        top:10px;
-        left:10px;
-      }
-    }
-
-    /* =============================
-         POPUP RESPONSIVE
-    ============================= */
     .popup{
       position:fixed;
       top:50%;
@@ -186,43 +162,14 @@
       opacity:0.9;
     }
 
-    /* =============================
-         MOBILE RESPONSIVE FIX
-    ============================= */
     @media (max-width:720px){
-      .frame{
-        margin:10px;
-        padding:14px;
-        padding-top:80px; /* sesuaikan untuk mobile */
-      }
-
-      .quiz-area{
-        padding:18px;
-      }
-
-      .question-wrap{
-        flex-direction:column;
-        text-align:center;
-      }
-
-      .avatar{
-        width:90px;
-        height:90px;
-        margin:0 auto;
-      }
-
-      .question-text{
-        font-size:18px;
-      }
-
-      .answers{
-        grid-template-columns:1fr;
-      }
-
-      .btn{
-        font-size:16px;
-        padding:12px;
-      }
+      .frame{ margin:10px; padding:14px; padding-top:80px; }
+      .quiz-area{ padding:18px; }
+      .question-wrap{ flex-direction:column; text-align:center; }
+      .avatar{ width:90px; height:90px; margin:0 auto; }
+      .question-text{ font-size:18px; }
+      .answers{ grid-template-columns:1fr; }
+      .btn{ font-size:16px; padding:12px; }
     }
   </style>
 </head>
@@ -256,13 +203,41 @@
     <footer>Petua: Tekan jawapan yang betul dan ulangi kuiz jika salah.</footer>
   </div>
 
-  <!-- BACK BUTTON KELUAR FRAME -->
   <div class="back" id="backBtn">
     <img src="image-menu/back.png">
   </div>
 
-
 <script>
+// --- LOGIK BUNYI (GENERATE SOUND) ---
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+function playTone(freq, type, duration) {
+    const oscillator = audioCtx.createOscillator();
+    const gainNode = audioCtx.createGain();
+
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    
+    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioCtx.destination);
+
+    oscillator.start();
+    oscillator.stop(audioCtx.currentTime + duration);
+}
+
+function soundCorrect() {
+    playTone(523.25, 'sine', 0.2); // Nada C5 (Bunyi lembut betul)
+    setTimeout(() => playTone(659.25, 'sine', 0.3), 100); // Nada E5
+}
+
+function soundWrong() {
+    playTone(220, 'triangle', 0.3); // Nada rendah (Bunyi salah)
+}
+// -------------------------------------
+
 const questions = [
   {q:'Sampah jenis kertas boleh dibuang dalam tong?',choices:['Tong biru','Tong coklat','Tong jingga','Tong hijau'],correct:0},
   {q:'Botol plastik seharusnya dibuang ke tong?',choices:['Tong hijau','Tong biru','Tong coklat','Tong jingga'],correct:3},
@@ -297,13 +272,20 @@ function renderQuestion(){
 
 function select(choice){
   const item = questions[idx];
+  
+  // Pastikan AudioContext diaktifkan (syarat browser)
+  if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+  }
 
   if(choice === item.correct){
+    soundCorrect(); // Panggil bunyi betul
     score++;
     scoreEl.textContent = score;
     showPopup(true,'Yeahhh betul!');
     setTimeout(()=> nextQuestion(),900);
   } else {
+    soundWrong(); // Panggil bunyi salah
     showPopup(false,'Jawapan salah!');
     setTimeout(()=> gameOver(),1100);
   }
@@ -334,7 +316,6 @@ function gameOver(){
 }
 
 function endQuiz(){
-
   hidePopup();
   qEl.textContent = 'Tahniah! Kuiz selesai.';
   ansEl.innerHTML = `
