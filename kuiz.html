@@ -211,14 +211,14 @@
 // --- LOGIK BUNYI (GENERATE SOUND) ---
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-function playTone(freq, type, duration) {
+function playTone(freq, type, duration, volume = 0.1) {
     const oscillator = audioCtx.createOscillator();
     const gainNode = audioCtx.createGain();
 
     oscillator.type = type;
     oscillator.frequency.setValueAtTime(freq, audioCtx.currentTime);
     
-    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+    gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
 
     oscillator.connect(gainNode);
@@ -228,13 +228,30 @@ function playTone(freq, type, duration) {
     oscillator.stop(audioCtx.currentTime + duration);
 }
 
+// Bunyi untuk Jawapan Betul
 function soundCorrect() {
-    playTone(523.25, 'sine', 0.2); // Nada C5 (Bunyi lembut betul)
-    setTimeout(() => playTone(659.25, 'sine', 0.3), 100); // Nada E5
+    playTone(523.25, 'sine', 0.2); 
+    setTimeout(() => playTone(659.25, 'sine', 0.3), 100); 
 }
 
+// Bunyi untuk Jawapan Salah
 function soundWrong() {
-    playTone(220, 'triangle', 0.3); // Nada rendah (Bunyi salah)
+    playTone(220, 'triangle', 0.4); 
+}
+
+// Bunyi untuk Game Over (Sedih)
+function soundGameOver() {
+    playTone(200, 'sawtooth', 0.5);
+    setTimeout(() => playTone(150, 'sawtooth', 0.5), 200);
+    setTimeout(() => playTone(100, 'sawtooth', 0.8), 400);
+}
+
+// Bunyi untuk Tahniah/End Quiz (Gembira)
+function soundVictory() {
+    playTone(523.25, 'sine', 0.2);
+    setTimeout(() => playTone(659.25, 'sine', 0.2), 150);
+    setTimeout(() => playTone(783.99, 'sine', 0.2), 300);
+    setTimeout(() => playTone(1046.50, 'sine', 0.5), 450);
 }
 // -------------------------------------
 
@@ -273,19 +290,18 @@ function renderQuestion(){
 function select(choice){
   const item = questions[idx];
   
-  // Pastikan AudioContext diaktifkan (syarat browser)
   if (audioCtx.state === 'suspended') {
       audioCtx.resume();
   }
 
   if(choice === item.correct){
-    soundCorrect(); // Panggil bunyi betul
+    soundCorrect();
     score++;
     scoreEl.textContent = score;
     showPopup(true,'Yeahhh betul!');
     setTimeout(()=> nextQuestion(),900);
   } else {
-    soundWrong(); // Panggil bunyi salah
+    soundWrong();
     showPopup(false,'Jawapan salah!');
     setTimeout(()=> gameOver(),1100);
   }
@@ -300,6 +316,7 @@ function nextQuestion(){
 
 function gameOver(){
   hidePopup();
+  soundGameOver(); // Main bunyi Game Over
   qEl.textContent = 'Game Over!';
   ansEl.innerHTML = `
     <div style="grid-column:1/-1;text-align:center;font-weight:700;font-size:24px">
@@ -317,6 +334,7 @@ function gameOver(){
 
 function endQuiz(){
   hidePopup();
+  soundVictory(); // Main bunyi Tahniah
   qEl.textContent = 'Tahniah! Kuiz selesai.';
   ansEl.innerHTML = `
     <div style="grid-column:1/-1;text-align:center;font-weight:700;font-size:28px">
