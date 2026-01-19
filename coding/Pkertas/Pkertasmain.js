@@ -151,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
       instructionBox.innerHTML = `
         <h2 style="margin:0 0 10px; font-size:clamp(20px,4vw,26px)">📱 Cara Interaksi</h2>
         <p style="font-size:clamp(14px,3.5vw,18px); line-height:1.4; text-align:left; display:inline-block;">
-          👉 <b>1 Tap(sentuhan)</b> : Tukar Paparan AR <br>
+            👉 <b>1 Tap(sentuhan)</b> : Tukar Paparan AR <br>
           👉 <b>Drag(Seret)</b> : Pusing model 3D<br>
           👉 <b>Pinch(Cubit)/Scroll</b> : Zoom Besar/Kecil<br><br>
           Arahkan kamera ke <b>Imej Sasaran</b> untuk mula.
@@ -169,7 +169,7 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       /* =====================
-          Loader & Steps
+          Loader & Steps (Diedit untuk tajuk)
       ====================== */
       const dLoader = new DRACOLoader();
       dLoader.setDecoderPath("/FYPECO/libs/draco/");
@@ -180,11 +180,11 @@ document.addEventListener("DOMContentLoaded", () => {
       camera.add(listener);
 
       const steps = [
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkertas1.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas1.mp3", scale: 0.1, info: "Semua kertas lama dikumpulkan dan dihancurkan jadi cebisan kecil.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkertas2.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas2.mp3", scale: 0.1, info: "Cebisan dicampur air khas menjadi pulpa (bubur kertas lembut).", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/Pkertas3.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas3.mp3", scale: 0.1, info: "Pulpa ditapis untuk membuang dakwat dan kotoran.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/PKertas4.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas4.mp3", scale: 0.08, info: "Pulpa diratakan, ditekan dan dikeringkan menjadi helaian.", loaded: false },
-        { glb: "/FYPECO/assets/models/Mproseskitar/PKertas5.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas5.mp3", scale: 0.11, info: "Helaian kertas diproses menjadi buku atau kotak tisu.", loaded: false }
+        { title: "PENGUMPULAN", glb: "/FYPECO/assets/models/Mproseskitar/Pkertas1.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas1.mp3", scale: 0.1, info: "Semua kertas lama dikumpulkan dan dihancurkan jadi cebisan kecil.", loaded: false },
+        { title: "PENGHASILAN PULPA", glb: "/FYPECO/assets/models/Mproseskitar/Pkertas2.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas2.mp3", scale: 0.1, info: "Cebisan dicampur air khas menjadi pulpa (bubur kertas lembut).", loaded: false },
+        { title: "PENAPISAN", glb: "/FYPECO/assets/models/Mproseskitar/Pkertas3.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas3.mp3", scale: 0.1, info: "Pulpa ditapis untuk membuang dakwat dan kotoran.", loaded: false },
+        { title: "PENGERINGAN", glb: "/FYPECO/assets/models/Mproseskitar/PKertas4.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas4.mp3", scale: 0.08, info: "Pulpa diratakan, ditekan dan dikeringkan menjadi helaian.", loaded: false },
+        { title: "PRODUK BARU", glb: "/FYPECO/assets/models/Mproseskitar/PKertas5.glb", audio: "/FYPECO/assets/suara/Sproseskitar/Spkertas5.mp3", scale: 0.11, info: "Helaian kertas diproses menjadi buku atau kotak tisu.", loaded: false }
       ];
 
       let currentStep = 0;
@@ -226,7 +226,8 @@ document.addEventListener("DOMContentLoaded", () => {
       progressBarContainer.appendChild(progressBarFill);
 
       const updateProgress = (index) => {
-        progressText.innerText = `Proses ${index + 1} / ${steps.length}`;
+        // Bahagian ini diedit untuk paparkan Nama Proses dari array steps
+        progressText.innerText = `${steps[index].title} (${index + 1}/${steps.length})`;
         progressBarFill.style.width = `${((index + 1) / steps.length) * 100}%`;
       };
 
